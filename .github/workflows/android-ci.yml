@@ -48,7 +48,7 @@ jobs:
         run: ./gradlew test
 
       - name: Archive APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
@@ -56,3 +56,38 @@ jobs:
       # Run Build Project
       - name: Build gradle project
         run: ./gradlew build
+
+      # Step: Set up Android Emulator
+      - name: Set up Android Emulator
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 30
+          target: android-30
+          arch: x86_64
+          profile: default
+          emulator-locale: en-US
+          script: echo y | sdkmanager "system-images;android-30;google_apis;x86_64"
+
+      # Step: Start Emulator
+      - name: Start Emulator
+        run: |
+          adb devices
+          echo no | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" -d "pixel"
+          emulator -avd test -no-snapshot-save -no-window -gpu swiftshader_indirect &
+
+      # Step: Wait for Emulator to Start
+      - name: Wait for Emulator
+        run: adb wait-for-device
+        timeout-minutes: 3
+
+      # Step: Install Appium
+      - name: Install Appium
+        run: npm install -g appium
+
+      # Step: Run Placeholder Appium Test
+      - name: Run Appium Test
+        run: |
+          echo "Starting Appium server"
+          appium --version
+          echo "Placeholder test complete"
+
