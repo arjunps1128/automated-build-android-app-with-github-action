@@ -47,6 +47,12 @@ jobs:
       - name: Run gradle tests
         run: ./gradlew test
 
+      - name: Archive APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
       # Run Build Project
       - name: Build gradle project
         run: ./gradlew build
